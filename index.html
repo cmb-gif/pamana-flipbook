@@ -6,7 +6,8 @@
 <meta name="theme-color" content="#111111">
 <title>PAMANA | Las Casas Filipinas de Acuzar</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%}
 body{background:#111;color:#eee;font-family:Arial,Helvetica,sans-serif;overflow:hidden}
 #app{width:100vw;height:100vh;display:flex;flex-direction:column}
 #viewer{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;perspective:2200px;padding:18px}
@@ -15,45 +16,117 @@ body{background:#111;color:#eee;font-family:Arial,Helvetica,sans-serif;overflow:
 .page.flipped{transform:rotateY(-180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#fff;overflow:hidden}
 .face img{width:100%;height:100%;display:block;object-fit:contain;background:#fff}
-.back{transform:rotateY(180deg);background:#eee}.back img{transform:scaleX(-1)}
+.back{transform:rotateY(180deg);background:#eee}
+.back img{transform:scaleX(-1)}
 #controls{height:68px;flex:none;display:flex;justify-content:center;align-items:center;gap:12px;padding:8px 12px;background:#0b0b0b}
 button{border:1px solid #444;background:#1d1d1d;color:#fff;border-radius:7px;padding:10px 16px;font-size:14px;cursor:pointer}
-button:hover{background:#2b2b2b}button:disabled{opacity:.35;cursor:not-allowed}
+button:hover{background:#2b2b2b}
+button:disabled{opacity:.35;cursor:not-allowed}
 #counter{min-width:105px;text-align:center;font-size:14px}
 #hint{position:fixed;left:50%;top:14px;transform:translateX(-50%);background:rgba(0,0,0,.65);padding:7px 11px;border-radius:20px;font-size:12px;opacity:.8;pointer-events:none}
-@media(max-width:700px){#viewer{padding:8px}#book{height:min(82vh,850px);max-width:96vw}#controls{height:62px;gap:7px}button{padding:9px 11px;font-size:13px}#counter{min-width:82px}}
+@media(max-width:700px){
+ #viewer{padding:8px}
+ #book{height:min(82vh,850px);max-width:96vw}
+ #controls{height:62px;gap:7px}
+ button{padding:9px 11px;font-size:13px}
+ #counter{min-width:82px}
+}
 </style>
 </head>
 <body>
 <div id="app">
 <div id="hint">Click the page or use the buttons • Arrow keys also work</div>
-<main id="viewer"><div id="book" aria-label="PAMANA digital magazine"></div></main>
+<main id="viewer">
+  <div id="book" aria-label="PAMANA digital magazine"></div>
+</main>
 <nav id="controls">
-<button id="prev" onclick="prevPage()">◀ Previous</button>
-<span id="counter">Page 1 / 22</span>
-<button id="next" onclick="nextPage()">Next ▶</button>
-<button onclick="fullscreen()">⛶ Fullscreen</button>
+  <button id="prev" onclick="prevPage()">◀ Previous</button>
+  <span id="counter">Page 1 / 22</span>
+  <button id="next" onclick="nextPage()">Next ▶</button>
+  <button onclick="fullscreen()">⛶ Fullscreen</button>
 </nav>
 </div>
+
 <script>
-const totalPages=22;
-const book=document.getElementById('book'),counter=document.getElementById('counter');
-const prev=document.getElementById('prev'),next=document.getElementById('next');
-let current=1;
-for(let i=1;i<=totalPages;i++){
- const p=document.createElement('div');p.className='page';p.style.zIndex=totalPages-i+1;p.dataset.page=i;
- const front=document.createElement('div');front.className='face front';
- const fi=document.createElement('img');fi.src='page-'+String(i).padStart(3,'0')+'.jpg';fi.alt='PAMANA magazine page '+i;front.appendChild(fi);
- const back=document.createElement('div');back.className='face back';
- const bi=document.createElement('img');bi.src='page-'+String(i).padStart(3,'0')+'.jpg';bi.alt='';back.appendChild(bi);
- p.appendChild(front);p.appendChild(back);book.appendChild(p);
+const totalPages = 22;
+const book = document.getElementById('book');
+const counter = document.getElementById('counter');
+const prev = document.getElementById('prev');
+const next = document.getElementById('next');
+let current = 1;
+
+/* IMPORTANT: the JPG files are in the repository root,
+   beside this index.html file. */
+for (let i = 1; i <= totalPages; i++) {
+  const number = String(i).padStart(3, '0');
+
+  const p = document.createElement('div');
+  p.className = 'page';
+  p.style.zIndex = totalPages - i + 1;
+  p.dataset.page = i;
+
+  const front = document.createElement('div');
+  front.className = 'face front';
+
+  const fi = document.createElement('img');
+  fi.src = './page-' + number + '.jpg';
+  fi.alt = 'PAMANA magazine page ' + i;
+  fi.onerror = () => console.error('Could not load ./page-' + number + '.jpg');
+  front.appendChild(fi);
+
+  const back = document.createElement('div');
+  back.className = 'face back';
+
+  const bi = document.createElement('img');
+  bi.src = './page-' + number + '.jpg';
+  bi.alt = '';
+  back.appendChild(bi);
+
+  p.appendChild(front);
+  p.appendChild(back);
+  book.appendChild(p);
 }
-function updateUI(){counter.textContent='Page '+current+' / '+totalPages;prev.disabled=current===1;next.disabled=current===totalPages}
-function nextPage(){if(current>=totalPages)return;book.querySelector('[data-page="'+current+'"]').classList.add('flipped');current++;updateUI()}
-function prevPage(){if(current<=1)return;current--;book.querySelector('[data-page="'+current+'"]').classList.remove('flipped');updateUI()}
-function fullscreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}
-document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown')nextPage();if(e.key==='ArrowLeft'||e.key==='PageUp')prevPage();if(e.key.toLowerCase()==='f')fullscreen()});
-book.addEventListener('click',e=>{const r=book.getBoundingClientRect();if(e.clientX-r.left>r.width/2)nextPage();else prevPage()});
+
+function updateUI() {
+  counter.textContent = 'Page ' + current + ' / ' + totalPages;
+  prev.disabled = current === 1;
+  next.disabled = current === totalPages;
+}
+
+function nextPage() {
+  if (current >= totalPages) return;
+  book.querySelector('[data-page="' + current + '"]').classList.add('flipped');
+  current++;
+  updateUI();
+}
+
+function prevPage() {
+  if (current <= 1) return;
+  current--;
+  book.querySelector('[data-page="' + current + '"]').classList.remove('flipped');
+  updateUI();
+}
+
+function fullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen?.();
+  } else {
+    document.exitFullscreen?.();
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'PageDown') nextPage();
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevPage();
+  if (e.key.toLowerCase() === 'f') fullscreen();
+});
+
+book.addEventListener('click', e => {
+  const r = book.getBoundingClientRect();
+  if (e.clientX - r.left > r.width / 2) nextPage();
+  else prevPage();
+});
+
 updateUI();
 </script>
 </body>
