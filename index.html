@@ -43,9 +43,9 @@ let current=1;
 for(let i=1;i<=totalPages;i++){
  const p=document.createElement('div');p.className='page';p.style.zIndex=totalPages-i+1;p.dataset.page=i;
  const front=document.createElement('div');front.className='face front';
- const fi=document.createElement('img');fi.src='pages/page-'+String(i).padStart(3,'0')+'.jpg';fi.alt='PAMANA magazine page '+i;front.appendChild(fi);
+ const fi=document.createElement('img');fi.src='page-'+String(i).padStart(3,'0')+'.jpg';fi.alt='PAMANA magazine page '+i;front.appendChild(fi);
  const back=document.createElement('div');back.className='face back';
- const bi=document.createElement('img');bi.src='pages/page-'+String(i).padStart(3,'0')+'.jpg';bi.alt='';back.appendChild(bi);
+ const bi=document.createElement('img');bi.src='page-'+String(i).padStart(3,'0')+'.jpg';bi.alt='';back.appendChild(bi);
  p.appendChild(front);p.appendChild(back);book.appendChild(p);
 }
 function updateUI(){counter.textContent='Page '+current+' / '+totalPages;prev.disabled=current===1;next.disabled=current===totalPages}
